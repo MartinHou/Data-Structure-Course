@@ -1,0 +1,183 @@
+/*
+文件名称：main.cpp
+创建者姓名班级学号:侯赟超 计科1903 1039190415
+创建时间：2020/9/17
+最后修改时间：2020/9/24 
+文件中所定义的函数的名称和主要功能：
+operator ==：重载==
+InitList_Sq：初始化顺序表
+ListInsert_Sq：插入算法 
+ListDelete_Sq：删除算法 
+ClearList_Sq：清除顺序表算法
+DestroyList_Sq：摧毁顺序表算法 
+ListEmpty：判断顺序表是否为空
+GetElem：获取元素算法 
+LocateElem：定位算法
+PriorElem：获取前项算法
+NextElem：获取后项算法
+combination：取并集 
+*/
+
+#include <iostream>
+#include<stdlib.h>
+#include <cstring>
+using namespace std;
+
+#define TRUE 1
+#define FALSE 0
+#define OK 1
+#define ERROR 0
+#define INFEASIBLE -1
+#define OVERFLOW -2
+
+#define LIST_INT_SIZE 100
+#define LISTINCREMENT 10
+
+typedef int Status;
+
+typedef struct{
+    int a;
+    char b;
+}ElemType;
+
+typedef struct{
+    ElemType *elem;
+    int length;
+    int listsize;
+}SqList;
+
+int operator ==(ElemType elem1,ElemType elem2){
+    if(elem1.a==elem2.a&&elem1.b==elem2.b)return 1;
+    return 0;
+}
+
+Status InitList_Sq(SqList &L){
+    L.elem=(ElemType*)malloc(sizeof(ElemType)*LIST_INT_SIZE);
+    if(!L.elem)exit(OVERFLOW);
+    L.length=0;
+    L.listsize=LIST_INT_SIZE;
+    return OK;
+}//初始化
+
+Status ListInsert_Sq(SqList &L,int i,ElemType e){
+    ElemType* q,* p;
+    if(i<1||i>L.length+1)return(ERROR);
+    if(L.length>=L.listsize){
+        ElemType* newbase;
+        newbase=(ElemType*)realloc(L.elem,(L.listsize+LISTINCREMENT)*sizeof(ElemType));
+        if(!newbase)exit(OVERFLOW);
+        L.elem=newbase;
+        L.listsize+=LISTINCREMENT;
+    }
+    q=&(L.elem[i-1]);
+    for(p=&(L.elem[L.length-1]);p>=q;--p)*(p+1)=*p;
+    *q=e;
+    ++L.length;
+    return OK;
+}//插入算法
+
+Status ListDelete_Sq(SqList &L,int i,ElemType& e){
+    ElemType* q,* p;
+    if(i<1||i>L.length)return(ERROR);
+    p=&(L.elem[i-1]);
+    e=*p;
+    q=L.elem+L.length-1;
+    for(++p;p<=q;++p)*(p-1)=*p;
+    --L.length;
+    return OK;
+}//删除算法
+
+Status ClearList_Sq(SqList &L){
+    memset(L.elem,0,sizeof(ElemType)*L.length);
+    return OK;
+}//清空算法*
+
+Status DestroyList_Sq(SqList &L){
+    free(L.elem);
+    return OK;
+}//销毁算法
+
+Status ListEmpty(SqList L){
+    if(L.length==0)return 1;
+    return 0;
+}//判断空表算法
+
+Status GetElem(SqList L,int i,ElemType &e){
+    if(i<1||i>L.length)return ERROR;
+    e=*(L.elem+i-1);
+    return OK;
+}//获取算法
+
+Status LocateElem(SqList L,ElemType e){
+    int i;
+    for(i=0;i<L.length;++i){
+        if(*(L.elem)==e)return i+1;
+    }
+    return 0;
+}//定位算法 
+
+Status PriorElem(SqList L,ElemType cur_e,ElemType& pre_e){
+    int i,j=0;
+    for(i=1;i<L.length;++i){
+        if(*(L.elem+i)==cur_e){
+            j=1;
+            break;
+        }
+    }
+    if(j=0)return ERROR;
+    pre_e=*(L.elem+i-1);
+    return OK;
+}//找前驱
+
+Status NextElem(SqList L,ElemType cur_e,ElemType& next_e){
+    int i,j=0;
+    for(i=0;i<L.length-1;++i){
+        if(*(L.elem+i)==cur_e){
+            j=1;
+            break;
+        }
+    }
+    if(j=0)return ERROR;
+    next_e=*(L.elem+i+1);
+    return OK;
+}//找后继
+
+Status combination(SqList L1,SqList L2,SqList& L3){
+    for(int i=0;i<L1.length;++i){
+        ListInsert_Sq(L3,L3.length+1,*(L1.elem+i));
+    }
+    for(int i=0;i<L2.length;++i){
+    	if(!LocateElem(L1,*(L2.elem+i)))ListInsert_Sq(L3,L3.length+1,*(L2.elem+i));
+	} 
+    return OK;
+}//合集
+
+int main()
+{
+    SqList L1,L2,L3;
+    InitList_Sq(L1);
+    InitList_Sq(L2);
+    InitList_Sq(L3);
+    ElemType elem;
+    int pause;
+    cout<<"输入L1。输入0 q退出"<<endl;
+    while(1){
+        cin>>elem.a>>elem.b;
+        if(elem.a==0&&elem.b=='q')break;
+        ListInsert_Sq(L1,L1.length+1,elem);
+    }
+    cout<<"输入L2。输入0 q退出"<<endl;
+    while(1){
+        cin>>elem.a>>elem.b;
+        if(elem.a==0&&elem.b=='q')break;
+        ListInsert_Sq(L2,L2.length+1,elem);
+    }
+    combination(L1,L2,L3);
+    cout<<"L3 is"<<endl;
+    for(int i=0;i<L3.length;++i){
+        cout<<(L3.elem+i)->a<<" "<<(L3.elem+i)->b<<endl;
+    }
+    cin>>pause;
+    DestroyList_Sq(L1);DestroyList_Sq(L2);DestroyList_Sq(L3);
+    return 0;
+}
