@@ -1,0 +1,249 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+char Prior[7][7] = {
+	//==========当前（c）============
+  	  	'>','>','<','<','<','>','>',
+/*栈*/	'>','>','<','<','<','>','>',
+	  	'>','>','>','>','<','>','>',
+	  	'>','>','>','>','<','>','>',	
+/*顶*/	'<','<','<','<','<','=',' ',
+		'>','>','>','>',' ','>','>',
+		'<','<','<','<','<',' ','='
+};
+int select(char op){//给运算符返回整型值
+	switch (op)
+	{
+	case '+':
+		return 0;
+	case '-':
+		return 1;
+	case '*':
+		return 2;
+	case '/':
+		return 3;
+	case '(':
+		return 4;
+	case ')':
+		return 5;
+	case '#':
+		return 6;
+	default:
+		return -1;
+	}
+}
+char precede(char c,char top){//比大小
+	return Prior[select(top)][select(c)];
+}
+bool In(char input){//是运算符则返回1，非运算符（数字）返回0
+	if(select(input)==-1)return 0;
+	return 1;
+}
+float operate(float a,float b,char theta){//计算表达式
+	switch (theta)
+	{
+	case '+':
+		return a+b;
+		break;
+	case '-':
+		return a-b;
+		break;
+	case '*':
+		return a*b;
+		break;
+	case '/':
+		return a/b;
+		break;
+	}
+	return 0;
+}
+
+float output_mid(){//计算中缀表达式
+	stack<float> opnd;//运算数栈
+	stack<char> optr;//运算符栈
+	char theta;
+	float a,b;
+	optr.push('#');
+	//初始化结束
+	getchar();//用于消除输入1导致的回车\n
+	char c=getchar();
+	while(!(optr.top()=='#' && c=='#')){//如果符号栈顶和当前均为#则输出结果
+		if(!In(c)){
+			float tem=(float)(c-'0');
+			opnd.push(tem);
+			c=getchar();
+		}else{
+			switch(precede(c,optr.top())){
+			case '<'://c优先级大
+				optr.push(c);
+				c=getchar();
+				break;
+			case '>'://c优先级小
+				theta=optr.pop();
+				b=opnd.pop();
+				a=opnd.pop();
+				opnd.push(operate(a,b,theta));
+				break;
+			case '='://为左右括号
+				optr.pop();
+				c=getchar();
+				break;
+			}
+		}
+	}
+	return opnd.top();
+}
+
+void trans_former(char* temp){//转化成前缀表达式，temp输出转化后的前缀表达式
+	stack<char> s1;
+	stack<char> s2;//中间结果
+	stack<char> reverse;
+	reverse.push('#');
+	s1.push('#');
+	s2.push('#');
+	int i=0;
+	char c;
+	getchar();//用于消除输入2导致的回车\n
+	c=getchar();
+	while(c!='#'){
+		reverse.push(c);
+		c=getchar();
+	}//至此，对reverse出栈所得即为中缀的倒序输出 #....., s1为#
+
+	c=reverse.pop();
+	while(c!='#'){
+		if(!In(c)){
+			float tem=(float)(c-'0');
+			s2.push(tem);//遇到数字就进s2
+			c=reverse.pop();
+		}else if(c==')'){//若得到左括号
+			s1.push(c);
+			c=reverse.pop();
+		}else if(c=='('){//若得到右括号，弹出s1至s2直至遇到右括号，然后消去括号
+			while (s1.top()!=')'){
+				s2.push(s1.pop());
+			}
+			s1.pop();
+			c=reverse.pop();
+		}else if(s1.top()==')'||s1.top()=='#'){
+			s1.push(c);
+			c=reverse.pop();
+		}else if((s1.top()=='*'||s1.top()=='/')&&(c=='*'||c=='/')){
+			s1.push(c);
+			c=reverse.pop();
+		}else{
+			switch(precede(c,s1.top())){
+			case '<'://c优先级大
+				s1.push(c);
+				c=reverse.pop();
+				break;
+			case '='://优先级相等
+				s1.pop();
+				c=reverse.pop();
+				break;
+			case '>'://c优先级小
+				s2.push(s1.pop());
+				break;
+			}
+		}
+	}
+	while (s1.top()!='#'){
+		s2.push(s1.pop());
+	}
+	while(s2.top()!='#'){
+		temp[i]=s2.pop();
+		++i;
+	}
+	temp[i]='#';
+
+	i=0;
+	while(temp[i]!='#'){
+		if(!In(temp[i]))cout<<(float)temp[i]<<' ';
+		else cout<<temp[i]<<' ';
+		++i;
+	}
+	cout<<endl;
+}
+float output_former(char* data){//输入前缀data，运算前缀表达式
+	stack<float> s;
+	char ck=data[0];
+	int i=0;
+	while(ck!='#'){
+		i++;
+		ck=data[i];
+	}//使i成为最后表达式最后一个字符的位置
+	i--;
+	while(i>=0){
+		if(!In(data[i])){
+			float tem=float(data[i]);
+			s.push(tem);
+			i--;
+		}else{
+			float a=s.pop();
+			float b=s.pop();
+			s.push(operate(a,b,data[i]));
+			i--;
+		}
+	}
+	return s.top();
+}
+
+void trans_latter(char temp[]){//转化成后缀表达式,temp用于输出转化后的后缀表达式
+	stack<float> opnd;//运算数栈
+	stack<char> optr;//运算符栈
+	optr.push('#');
+	int i=0;
+	//初始化结束
+	getchar();//用于消除输入3导致的回车\n
+	char c=getchar();
+	while(!(optr.top()=='#' && c=='#')){
+		if(!In(c)){
+			float tem=(float)(c-'0');
+			temp[i]=tem;i++;//遇到数字就进temp
+			c=getchar();
+		}else{
+			switch(precede(c,optr.top())){
+			case '<'://c优先级大，压栈
+				optr.push(c);
+				c=getchar();
+				break;
+			case '>'://c优先级小
+				temp[i]=optr.pop();
+				i++;
+				break;
+			case '='://为左右括号
+				optr.pop();
+				c=getchar();
+				break;
+			}
+		}
+	}
+	temp[i]='#';
+
+	i=0;
+	while(temp[i]!='#'){
+		if(!In(temp[i]))cout<<(float)temp[i]<<' ';
+		else cout<<temp[i]<<' ';
+		++i;
+	}
+	cout<<endl;
+}
+float output_latter(char data[]){//输入后缀data，运算后缀表达式
+	stack<float> result;
+	int i=0;
+	//初始化结束
+	while(data[i]!='#'){
+		if(!In(data[i])){
+			float tem=(float)data[i];
+			result.push(tem);
+			i++;
+		}else{
+			float b=result.pop();
+			float a=result.pop();
+			result.push(operate(a,b,data[i]));
+			i++;
+		}
+	}
+	return result.top();
+}
