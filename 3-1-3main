@@ -1,0 +1,41 @@
+/*
+创建时间：2020/10/22
+最后修改时间：2020/10/30
+文件中所定义的函数的名称和主要功能：
+isempty：判断栈空
+size：告知栈长度
+top：返回栈顶元素
+push：入栈
+pop：出栈
+clear：清空栈
+*/
+#include <iostream>
+#include <stdlib.h>
+#include "stackdef.cpp"
+#include "fun.cpp"
+using namespace std;
+
+int main(){
+    int mode;
+    char temp[50];
+    cout<<"enter mode:"<<endl<<"1-output mid result  2-output former and its result 3-output latter and its result"<<endl;
+    cout<<"dont forget to enter # when ending"<<endl;
+    cin>>mode;
+    switch (mode)
+    {
+    case 1:
+        cout<<output_mid()<<endl;
+        break;
+    case 2:
+        trans_former(temp);
+        cout<<output_former(temp)<<endl;
+        break;
+    case 3:
+        trans_latter(temp);
+        cout<<output_latter(temp)<<endl;
+        break;
+    default:
+        cout<<"invalid mode code!!";
+    }
+    return 0;
+}
