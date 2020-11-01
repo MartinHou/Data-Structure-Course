@@ -1,0 +1,71 @@
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
+
+typedef int Status;
+typedef int ElemType;
+
+typedef struct LNode
+{
+    ElemType elem;
+    struct LNode* next;    
+}LinkNode,*LinkList;
+
+void LinkInit(LinkList &L){
+    L=(LinkNode*)malloc(sizeof(LinkNode));
+    L->next=NULL;
+}
+
+void LinkCreate(LinkList &L,int n){
+    LinkNode* p=L;
+    for(int i=0;i<n;++i){
+        p->next=(LinkList)malloc(sizeof(LinkNode));
+        p=p->next;
+        cin>>p->elem;
+    }
+    p->next=NULL;
+}
+
+void Linkdel(LinkList &L,LinkNode* p){//p是要删除元素的前一个元素
+    LinkNode* q=p->next;
+    p->next=q->next;
+    free(q);
+}
+
+void LinkShow(LinkList L){
+    LinkNode* p=L->next;
+    while(p!=NULL){
+        cout<<p->elem<<" ";
+        p=p->next;
+    }
+}
+
+void DestroyList(LinkList &L){
+	LinkNode* p=L,* q;
+	while(p!=NULL){
+		q=p->next;
+		free(p);
+		p=q;
+	}
+}
+
+int main(){
+    LinkList L;
+    LinkInit(L);
+    int n,min,max;
+    cin>>n;
+    LinkCreate(L,n);
+    cin>>min>>max;
+    LinkNode* p=L;
+    while(p->next!=NULL){
+        if(p->next->elem>=min&&p->next->elem<=max){
+            Linkdel(L,p);
+            continue;
+        }
+        p=p->next;
+    }
+    LinkShow(L);
+    DestroyList(L);
+    return 0;
+}
