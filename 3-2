@@ -1,0 +1,82 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+template<class T>
+class stack{
+public:
+	stack();
+    ~stack(){};
+	T top();//返回栈顶元素
+	void push(T e);//入栈 
+	T pop();//出栈
+    int czcs;
+private:
+	struct Node{
+		T elem;
+		Node* next;
+	};
+	Node* head;
+	int length;
+};
+
+template<class T>
+stack<T>::stack():length(0),czcs(0){
+	head=new Node;
+	if(!head)exit(1);
+	head->next=NULL;
+}
+template<class T>
+T stack<T>::top(){
+	if(head->next==NULL)return 0;
+	return head->next->elem;
+}
+template<class T>
+void stack<T>::push(T e){
+	Node* q=new Node;
+	q->elem=e;
+	q->next=head->next;
+	head->next=q;
+	length++;
+}
+template<class T>
+T stack<T>::pop(){
+	if(length<=0)exit(1);
+	Node* p=head->next;
+	T tempdata=p->elem;
+	head->next=p->next;
+	delete (p);
+	length--;
+    czcs++;
+	return tempdata;
+}
+
+int main(){
+    int n,a;
+    cin>>n;
+    int temp[n];
+    stack<int> s;
+    for(int i=0;i<n;++i){
+        cin>>temp[i];//输入序列
+    }
+    int i=0;
+    s.push(temp[0]);
+    char t;
+    while(1){
+        cin>>a;//获取输出数字a
+        t=getchar();
+        while(s.top()!=a && i<n){//当s顶非当前输出数字，并尚未能得出输入序列中无法给出当前输出数字时，进行循环
+            ++i;
+            s.push(temp[i]);
+        }//进栈直至a与栈顶元素相等
+        if(s.top()==a){//相等则弹栈
+            s.pop();
+        }else if(i==n){//找不到则返回0
+            cout<<'0';
+            break;
+        }
+        if(t=='\n')break;
+    }
+    if(t=='\n')cout<<s.czcs;
+    return 0;
+}
