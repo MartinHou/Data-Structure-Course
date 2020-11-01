@@ -1,0 +1,84 @@
+#include <iostream>
+#include <stdlib.h>
+#include <cstring>
+using namespace std;
+
+#define TRUE 1
+#define FALSE 0
+#define OK 1
+#define ERROR 0
+#define INFEASIBLE -1
+#define OVERFLOW -2
+
+#define LIST_INT_SIZE 100
+#define LISTINCREMENT 10
+
+typedef int Status;
+typedef int ElemType;
+
+typedef struct{
+    ElemType *elem;
+    int length;
+    int listsize;
+}SqList;
+
+Status InitList_Sq(SqList &L){
+    L.elem=(ElemType*)malloc(sizeof(ElemType)*LIST_INT_SIZE);
+    if(!L.elem)exit(OVERFLOW);
+    L.length=0;
+    L.listsize=LIST_INT_SIZE;
+    return OK;
+}
+
+Status ListInsert_Sq(SqList &L,int i,ElemType e){
+    ElemType* q,* p;
+    if(i<1||i>L.length+1)return(ERROR);
+    if(L.length>=L.listsize){
+        ElemType* newbase;
+        newbase=(ElemType*)realloc(L.elem,(L.listsize+LISTINCREMENT)*sizeof(ElemType));
+        if(!newbase)exit(OVERFLOW);
+        L.elem=newbase;
+        L.listsize+=LISTINCREMENT;
+    }
+    q=&(L.elem[i-1]);
+    for(p=&(L.elem[L.length-1]);p>=q;--p)*(p+1)=*p;
+    *q=e;
+    ++L.length;
+    return OK;
+}
+
+Status DestroyList_Sq(SqList &L){
+    free(L.elem);
+    return OK;
+}
+
+void ShowList_Sq(SqList L){
+    for(int i=1;i<=L.length;++i){
+        cout<<*(L.elem+i-1)<<" ";
+    }
+}
+
+int main(){
+    SqList L;
+    int num;
+    InitList_Sq(L);
+    cin>>num;
+    for(int i=1;i<=num;++i){
+        ElemType temp;
+        cin>>temp;
+        ListInsert_Sq(L,i,temp);
+    }
+    //输入结束
+    for(int i=0;i<num-1;++i){
+        ElemType * p=L.elem;
+        ElemType temp=*L.elem;
+        for(int j=1;j<num-i;++j){
+            ++p;
+            *(p-1)=*p;    
+        }
+        *p=temp;
+    }
+    ShowList_Sq(L);
+    DestroyList_Sq(L);
+    return 0;
+}
