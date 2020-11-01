@@ -1,0 +1,75 @@
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
+
+typedef int Status;
+typedef int ElemType;
+
+typedef struct LNode
+{
+    struct LNode* prior;
+    ElemType elem;
+    struct LNode* next;    
+}LinkNode,*LinkList;
+
+void LinkInit(LinkList &L){
+    L=(LinkNode*)malloc(sizeof(LinkNode));
+    L->prior=NULL;
+    L->next=NULL;
+}
+
+void LinkCreate(LinkList &L,int n){ 
+    LinkNode* p=L,*q;
+    for(int i=0;i<n;++i){
+        q=p;
+        p->next=(LinkList)malloc(sizeof(LinkNode));
+        p=p->next;
+        p->prior=q;
+        cin>>p->elem;
+    }
+    p->next=NULL;
+}
+
+void Linkdel(LinkNode* q){//p是要删除元素
+    LinkNode* l=q->prior;
+    l->next=q->next;
+    q->next->prior=l;
+    free(q);
+}
+
+void LinkShow(LinkList L){
+    LinkNode* p=L->next;
+    while(p!=NULL){
+        cout<<p->elem<<" ";
+        p=p->next;
+    }
+}
+
+void DestroyList(LinkList &L){
+	LinkNode* p=L,* q;
+	while(p!=NULL){
+		q=p->next;
+		free(p);
+		p=q;
+	}
+}
+
+int main(){
+    int num,x;
+    LinkList L;
+    cin>>num;
+    LinkInit(L);
+    LinkCreate(L,num);
+    cin>>x;
+    LinkNode* p=L->next,* q;
+    for(int i=0;i<num;i++){
+        if(p->elem==x){
+            q=p;
+            p=p->next;
+            Linkdel(q);
+        }else p=p->next;
+    }
+    LinkShow(L);
+    return 0;
+}
