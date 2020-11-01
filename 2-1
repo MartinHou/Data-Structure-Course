@@ -1,0 +1,175 @@
+/*
+文件名称：main.cpp
+创建时间：2020/9/26
+最后修改时间：2020/10/9
+文件中所定义的函数的名称和主要功能：
+operator ==：重载==
+InitList_L：初始化链表
+ListInsert_L：插入算法 
+ListDelete_L：删除算法 
+ClearList_L：清除链表算法
+DestroyList_L：摧毁链表算法 
+ListEmpty：判断链表是否为空
+GetElem：获取元素算法 
+LocateElem：定位算法
+PriorElem：获取前项算法
+NextElem：获取后项算法
+combination：取并集 
+*/
+
+#define OK 1
+#define ERROR 0
+#define INFEASIBLE -1
+#define OVERFLOW -2
+
+#include <iostream>
+#include <stdlib.h>
+#include <cstring>
+using namespace std;
+
+typedef int Status;
+typedef int ElemType;//可更改ElemType具体数据类型
+typedef struct Link{
+	ElemType elem;
+	struct Link* next;
+}LinkNode,*LinkList;
+
+Status ListInit_L(LinkList &L){
+	L=(LinkList)malloc(sizeof(LinkNode));
+	if(!L) exit(OVERFLOW);
+	L->next=NULL;
+	return OK;
+}
+Status ListCreate_L(LinkList &L,int n){
+	if(n<1)return ERROR;
+	LinkNode* p=L;
+	for(int i=0;i<n;++i){
+		p->next=(LinkList)malloc(sizeof(LinkNode));
+		p=p->next;
+		cin>>p->elem;
+	}
+	p->next=NULL;
+	return OK;
+}
+Status ListInsert_L(LinkList &L,int i,ElemType elem){
+	int j=0;
+	LinkNode* node=(LinkList)malloc(sizeof(LinkNode));
+	node->elem=elem;
+	LinkNode* p=L;
+	while(p!=NULL&&j!=i-1){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return ERROR;
+	node->next=p->next;
+	p->next=node;
+	return OK;	
+}//插入函数
+Status ListDelete_L(LinkList &L,int i,ElemType &e){
+	LinkNode* p=L,*q;
+	for(int j=0;p!=NULL&&j!=i-1;p=p->next,j++);
+	if(p==NULL)return ERROR;
+	q=p->next;
+	p->next=q->next;
+	e=q->elem;
+	free(q);
+	return OK;
+}//删除函数
+Status ClearList_L(LinkList &L){
+	LinkNode* p=L->next;
+	while(p!=NULL){
+		p->elem=0;
+		p=p->next;
+	}
+	return OK;
+}//清空函数
+Status DestroyList_L(LinkList &L){
+	LinkNode* p=L,* q;
+	while(p!=NULL){
+		q=p->next;
+		free(p);
+		p=q;
+	}
+	return OK;
+}//摧毁函数
+Status ListEmpty(LinkList L){
+	if(L->next==NULL)return 1;//1表示是空 
+	return 0;//0表示有数据 
+}//判断空表
+Status GetElem(LinkList L,int i,ElemType &e){
+	LinkNode* p=L;
+	int j=0;
+	while(p!=NULL&&j!=i){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return ERROR;
+	e=p->elem;
+	return OK;
+}//获取链表元素 
+int LocateElem(LinkList L,ElemType e){//输入元素e,返回位置
+	LinkNode* p=L->next;
+	int j=1;
+	while(p!=NULL&&p->elem!=e){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return 0;
+	return j;//返回元素e所在顺序 
+}//定位函数 
+Status PriorElem(LinkList L,ElemType e,ElemType &elem){
+	LinkNode* p=L,* q;
+	while(p!=NULL&&p->elem!=e){
+		q=p;
+		p=p->next;
+	}
+	if(p==NULL)return ERROR;
+	elem=q->elem;
+	return OK;
+}//取得前一元素 
+Status NextElem(LinkList L,ElemType e,ElemType &elem){
+	LinkNode* p = L;
+	while(p!=NULL&&p->elem!=e){
+		p=p->next;
+	}
+	if(p==NULL||p->next==NULL)return ERROR;
+	elem=p->next->elem;
+	return OK;
+}//取得后一元素
+void LinkShow(LinkList L){
+	LinkNode* q=L->next;
+	while(q!=NULL){
+		cout<<q->elem<<" ";
+		q=q->next;
+	}
+}
+
+int main() {
+	LinkList L1,L2,L3;
+	int n,m;
+	ListInit_L(L1);ListInit_L(L2);ListInit_L(L3);
+	cout<<"输入L1,L2长度"<<endl;
+	cin>>n>>m;
+	ListCreate_L(L1,n);ListCreate_L(L2,m);
+	int i=0,j=0;
+	ElemType e;
+	LinkNode* p=L1->next,* q=L2->next;
+	while(p!=NULL){
+		i++;
+		GetElem(L1,i,e);
+		ListInsert_L(L3,i,e);
+		p=p->next;
+	}
+	while(q!=NULL){
+		j++;
+		GetElem(L2,j,e);
+		if(!LocateElem(L1,e)){
+			i++;
+			ListInsert_L(L3,i,e);
+		}
+		q=q->next;
+	}
+	LinkShow(L3);
+	DestroyList_L(L1);DestroyList_L(L2);DestroyList_L(L3);
+	return 0;
+}
