@@ -1,0 +1,66 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+template<class T>
+class stack{
+public:
+	stack();
+	~stack(){};
+	bool isempty();
+	int size();
+	T top();//返回栈顶元素
+	void push(T e);//入栈 
+	T pop();//出栈
+	void clear();
+private:
+	struct Node{
+		T elem;
+		Node* next;
+	};
+	Node* head;
+	int length;
+};
+
+template<class T>
+stack<T>::stack():length(0){
+	head=new Node;
+	if(!head)exit(1);
+	head->next=NULL;
+}
+template<class T>
+bool stack<T>::isempty(){
+	if (length==0)return 1;
+	return 0;
+}
+template<class T>
+int stack<T>::size(){
+	return length;
+}
+template<class T>
+T stack<T>::top(){
+	if(head->next==NULL)return 0;
+	return head->next->elem;
+}
+template<class T>
+void stack<T>::push(T e){
+	Node* q=new Node;
+	q->elem=e;
+	q->next=head->next;
+	head->next=q;
+	length++;
+}
+template<class T>
+T stack<T>::pop(){
+	if(length<=0)exit(1);
+	Node* p=head->next;
+	T tempdata=p->elem;
+	head->next=p->next;
+	delete (p);
+	length--;
+	return tempdata;
+}
+template<class T>
+void stack<T>::clear(){
+	while(length>0)pop();
+}
