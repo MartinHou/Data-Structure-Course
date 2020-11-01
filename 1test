@@ -1,0 +1,35 @@
+#include <iostream>
+
+using namespace std;
+
+int main(){
+    int N,k;
+    cin>>N;
+    int A[N];
+    for(int i=0;i<N;++i){
+        scanf("%d",&A[i]);
+        if(cin.get()==',');
+    }
+    cin>>k;
+
+    int floor=0,ceilling=N-1,mid[N/2],i=0,index=-1;
+    while(floor<ceilling){
+        mid[i]=(floor+ceilling)/2;
+        if(A[mid[i]]==k){
+            index=mid[i];
+            break;
+        }
+        if(A[mid[i]]<k){
+            floor=mid[i]+1;
+        }else{
+            ceilling=mid[i]-1;
+        }
+        ++i;
+    }
+    if(index==-1)cout<<"no"<<endl;
+    else cout<<index<<endl;
+    for(int j=0;j<i-1;++j)cout<<A[mid[j]]<<",";
+    if(index!=-1)cout<<A[mid[i-1]]<<","<<A[mid[i]];
+    else cout<<A[mid[i-1]];
+    return 0;
+}
