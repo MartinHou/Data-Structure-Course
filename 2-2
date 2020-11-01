@@ -1,0 +1,229 @@
+/*
+文件名称：main.cpp
+创建时间：2020/9/26
+最后修改时间：2020/10/9
+文件中所定义的函数的名称和主要功能：
+operator ==：重载==
+InitList_L：初始化链表
+ListInsert_L：插入算法 
+ListDelete_L：删除算法 
+ClearList_L：清除链表算法
+DestroyList_L：摧毁链表算法 
+ListEmpty：判断链表是否为空
+GetElem：获取元素算法 
+LocateElem：定位算法
+PriorElem：获取前项算法
+NextElem：获取后项算法
+combination：取并集 
+*/
+
+#define OK 1
+#define ERROR 0
+#define INFEASIBLE -1
+#define OVERFLOW -2
+
+#include <iostream>
+#include <stdlib.h>
+#include <cstring>
+using namespace std;
+
+typedef int Status;
+typedef struct
+{
+    int var;
+    int expo;
+}ElemType;
+
+typedef struct Link{
+	ElemType elem;
+	struct Link* next;
+}LinkNode,*LinkList;
+
+Status ListInit_L(LinkList &L){
+	L=(LinkList)malloc(sizeof(LinkNode));
+	if(!L) exit(OVERFLOW);
+	L->next=NULL;
+	return OK;
+}
+Status ListCreate_L(LinkList &L,int n){
+	if(n<1)return ERROR;
+	LinkNode* p=L;
+	for(int i=0;i<n;++i){
+		p->next=(LinkList)malloc(sizeof(LinkNode));
+		p=p->next;
+		cin>>p->elem.var>>p->elem.expo;
+	}
+	p->next=NULL;
+	return OK;
+}
+Status ListInsert_L(LinkList &L,int i,ElemType elem){
+	int j=0;
+	LinkNode* node=(LinkList)malloc(sizeof(LinkNode));
+	node->elem=elem;
+	LinkNode* p=L;
+	while(p!=NULL&&j!=i-1){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return ERROR;
+	node->next=p->next;
+	p->next=node;
+	return OK;	
+}//插入函数
+Status ListDelete_L(LinkList &L,int i,ElemType &e){
+	LinkNode* p=L,*q;
+	for(int j=0;p!=NULL&&j!=i-1;p=p->next,j++);
+	if(p==NULL)return ERROR;
+	q=p->next;
+	p->next=q->next;
+	e=q->elem;
+	free(q);
+	return OK;
+}//删除函数
+Status ListDelete2_L(LinkNode* p){//q为删除元素前一个元素指针
+    LinkNode* q=p->next;
+    p->next=q->next;
+    free(q);
+    return OK;
+}
+Status DestroyList_L(LinkList &L){
+	LinkNode* p=L,* q;
+	while(p!=NULL){
+		q=p->next;
+		free(p);
+		p=q;
+	}
+	return OK;
+}//摧毁函数
+Status ListEmpty(LinkList L){
+	if(L->next==NULL)return 1;//1表示是空 
+	return 0;//0表示有数据 
+}//判断空表
+Status GetElem(LinkList L,int i,ElemType &e){
+	LinkNode* p=L;
+	int j=0;
+	while(p!=NULL&&j!=i){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return ERROR;
+	e=p->elem;
+	return OK;
+}//获取链表元素 
+int LocateElem(LinkList L,ElemType e){//输入元素e,返回位置
+	LinkNode* p=L->next;
+	int j=1;
+	while(p!=NULL&&!(p->elem.expo==e.expo&&p->elem.var==e.var)){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return 0;
+	return j;//返回元素e所在顺序 
+}//定位函数 
+Status PriorElem(LinkList L,ElemType e,ElemType &elem){
+	LinkNode* p=L,* q;
+	while(p!=NULL&&!(p->elem.expo==e.expo&&p->elem.var==e.var)){
+		q=p;
+		p=p->next;
+	}
+	if(p==NULL)return ERROR;
+	elem=q->elem;
+	return OK;
+}//取得前一元素 
+Status NextElem(LinkList L,ElemType e,ElemType &elem){
+	LinkNode* p = L;
+	while(p!=NULL&&!(p->elem.expo==e.expo&&p->elem.var==e.var)){
+		p=p->next;
+	}
+	if(p==NULL||p->next==NULL)return ERROR;
+	elem=p->next->elem;
+	return OK;
+}//取得后一元素
+void LinkShow(LinkList L){
+	LinkNode* q=L->next;
+	while(q!=NULL){
+		cout<<q->elem.var<<" "<<q->elem.expo<<"  ";
+		q=q->next;
+	}
+}
+void add(LinkList &L1,LinkList &L2){
+    LinkNode* p1=L1->next,*p2=L2->next,*p3=L1;
+    while(p1&&p2){
+        if(p1->elem.expo<p2->elem.expo){
+            p3->next=p1;
+            p3=p3->next;
+            p1=p1->next;
+        }
+        else if(p1->elem.expo>p2->elem.expo){
+            p3->next=p2;
+            p3=p3->next;
+            p2=p2->next;
+        }
+        else{
+            p1->elem.var+=p2->elem.var;
+            if(p1->elem.var==0){
+				p3->next=p1;
+				p1=p1->next;
+				ListDelete2_L(p3);
+                p3->next=p2;
+				p2=p2->next;
+				ListDelete2_L(p3);
+            }else{
+				p3->next=p2;
+            	p2=p2->next;
+				ListDelete2_L(p3);
+                p3->next=p1;
+                p3=p3->next;
+                p1=p1->next;
+            }
+        }
+    }//下面判断p1,p2哪个为NULL，分别如何处理
+    if(!p1)p3->next=p2;
+    if(!p2)p3->next=p1;
+}
+
+int main() {
+	LinkList L1,L2;
+    ListInit_L(L1);ListInit_L(L2);
+    LinkNode* p=L1,* q=L2,* temp;
+    cout<<"Input 1st equation by: var expo, enter 0 0 to end"<<endl;
+	while(1){
+		p->next=(LinkList)malloc(sizeof(LinkNode));
+		temp=p;
+		p=p->next;
+        p->next=NULL;
+		cin>>p->elem.var>>p->elem.expo;
+        if(p->elem.var==0&&p->elem.expo==0){
+            ListDelete2_L(temp);
+            break;
+        }
+	}
+    cout<<"Input 2nd equation by: var expo, enter 0 0 to end"<<endl;
+	while(1){
+		q->next=(LinkList)malloc(sizeof(LinkNode));
+		temp=q;
+		q=q->next;
+        q->next=NULL;
+		cin>>q->elem.var>>q->elem.expo;
+        if(q->elem.var==0&&q->elem.expo==0){
+            ListDelete2_L(temp);
+            break;
+        }
+	}
+//输出两个多项式
+    p=L1->next;q=L2->next;
+    while(p){
+        cout<<p->elem.var<<" "<<p->elem.expo<<"  ";
+        p=p->next;
+    }
+    cout<<endl;
+    while(q){
+        cout<<q->elem.var<<" "<<q->elem.expo<<"  ";
+        q=q->next;
+    }
+    cout<<endl<<endl;
+	add(L1,L2);
+	LinkShow(L1);
+    DestroyList_L(L1);
+	return 0;
+}
