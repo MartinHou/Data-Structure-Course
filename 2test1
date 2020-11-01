@@ -1,0 +1,116 @@
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
+
+typedef int Status;
+typedef char ElemType;
+
+typedef struct LNode
+{
+    ElemType data;
+    struct LNode* next;    
+}LinkNode,*LinkList;
+
+void LinkInit(LinkList &L){
+    L=(LinkNode*)malloc(sizeof(LinkNode));
+    L->next=NULL;
+}
+
+void LinkCreate(LinkList &L,int n){
+    LinkNode* p=L;
+    for(int i=0;i<n;++i){
+        p->next=(LinkList)malloc(sizeof(LinkNode));
+        p=p->next;
+        scanf("%c",&(p->data));
+    }
+	p->next=NULL;
+}
+
+Status LinkInsert(LinkList &L,int i,ElemType elem){
+	int j=0;
+	LinkNode *node=(LinkList)malloc(sizeof(LinkNode));
+	node->data=elem;
+	LinkNode* p=L;
+	while(p!=NULL&&j!=i-1){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return 0;
+	node->next=p->next;
+	p->next=node;
+	return 1;	
+}
+
+Status GetElem(LinkList L,int i,ElemType &e){
+	LinkNode* p=L;
+	int j=0;
+	while(p!=NULL&&j!=i){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL)return 0;
+	e=p->data;
+	return 1;
+}
+
+void DestroyLink(LinkList &L){
+	LinkNode* p=L,* q;
+	while(p!=NULL){
+		q=p->next;
+		free(p);
+		p=q;
+	}
+}
+
+void LinkShow(LinkList L){
+    LinkNode* p=L->next;
+    while(p!=NULL){
+        cout<<p->data;
+        p=p->next;
+    }
+}
+
+int main(){
+	int num1,num2;
+	LinkList str1,str2;
+	LinkInit(str1);
+	LinkInit(str2);
+	cin>>num1>>num2;
+	getchar();
+	ElemType s1[num1],s2[num2];
+	for(int i=0;i<num1;++i){
+		scanf("%c",&s1[i]);
+	}
+	getchar();
+	for(int i=0;i<num2;++i){
+		scanf("%c",&s2[i]);
+	}
+	int i=num1-1,j=num2-1;
+	for(;i>=0&&j>=0;--i,--j){
+		if(s1[i]!=s2[j])break;
+	}
+	//将单词分别输入进两个数组，让i,j表示从后往前第一个不一样的字符的数组下标
+	LinkNode* p=str1;
+	LinkList m;
+	for(int e=0;e<num1;++e){
+		p->next=(LinkList)malloc(sizeof(LinkNode));
+		p=p->next;
+		p->data=s1[e];
+		if(e==i)m=p;
+	}
+	p->next=NULL;
+	//让str1直接为第一个单词，在后缀第一个词处用m指向
+	LinkNode* q=str2;
+	for(int i=0;i<=j;++i){
+		q->next=(LinkList)malloc(sizeof(LinkNode));
+		q=q->next;
+		q->data=s2[i];
+	}
+	//让str2初始化到后缀前
+	q->next=m;//完成str2与共用链表的连接
+	LinkShow(m);//显示公用链表
+	DestroyLink(str1);
+	DestroyLink(str2);
+	return 0;
+}
